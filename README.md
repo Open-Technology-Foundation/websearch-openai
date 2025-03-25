@@ -23,18 +23,21 @@ A command-line interface for OpenAI's web search functionality, allowing you to 
 ## Installation
 
 1. Clone this repository:
+
    ```bash
    git clone https://github.com/yourusername/websearch-openai.git
    ```
 
 2. Make the script executable:
+
    ```bash
    chmod +x websearch-openai
    ```
 
 3. Optionally, add to your PATH:
+
    ```bash
-   ln -s "$(pwd)/websearch-openai" ~/bin/websearch-openai
+   sudo ln -s "$(pwd)/websearch-openai" /usr/local/bin/websearch-openai
    ```
 
 ## Usage
