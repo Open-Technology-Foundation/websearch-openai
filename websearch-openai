@@ -41,10 +41,10 @@ Usage:
 
 Arguments:
   Query               The search query to send to OpenAI (required, max 255 chars)
-  QueryContext        Additional context for the query (optional, max 1024 chars)
+  QueryContext        Additional context for Query (optional, max 1024 chars)
 
 Location Options:
-  -N, --no-location   Don't include location data in the query
+  -N, --no-location   Erase location context
   -c, --country COUNTRYCODE
                       Two-letter country code (ISO 3166-1 alpha-2)
                       Current: $(decp COUNTRYCODE)
@@ -55,7 +55,7 @@ Location Options:
                       City name
                       Current: $(decp CITY)
   -t, --timezone TIMEZONE
-                      Timezone in Region/City format (e.g., Europe/London)
+                      Timezone in Region/City format (e.g., Asia/Jakarta)
                       Current: $(decp TIMEZONE)
 
 Search Options:
@@ -83,9 +83,9 @@ General:
 
 Examples:
   $PRG "What's the weather like today?"
-  $PRG -c US -r CA -C "San Francisco" "Local events this weekend"
+  $PRG -c ID -r BA -C '' "Local events this weekend"
   $PRG -m gpt-4o-mini -o results.md "Latest news about AI"
-  $PRG -S -c US -r NY -C "New York" -t America/New_York    # Save location defaults
+  $PRG -S -c ID -r JA -C "Jakarta" -t Asia/Jakarta # Save location defaults
 
 EOT
   return 0
@@ -157,7 +157,8 @@ websearch() {
 
   [[ -z "$QUERY" ]] && { usage; exit 1; }
 
-  [[ -n "$QUERY_CONTEXT" ]] && QUERY_CONTEXT="\n$QUERY_CONTEXT"
+  QUERY_CONTEXT+="$(locality_context)"
+  ((VERBOSE)) && >&2 decp QUERY_CONTEXT
 
   result=$(timeout ${TIMEOUT}s curl -s --compressed "https://api.openai.com/v1/responses" \
     -H "Content-Type: application/json" \
@@ -267,6 +268,16 @@ validate() {
 
   return 0
 }
+
+locality_context() {
+  local -- context result=''
+  for context in COUNTRYCODE COUNTRY REGIONCODE CITY TIMEZONE; do
+    [[ -n "${!context}" ]] && result+="$context=${!context} "
+  done
+  [[ -n $result ]] && echo " (Locality Context: $result$(decp LANG LANGUAGE LC_NUMERIC LC_TIME LC_MEASUREMENT |tr -d '"' |tr $'\n' ';' |sed 's/;/ /g')timestamp=$(date -Is))"
+  return 0
+}
+
 
 websearch "$@"
 
