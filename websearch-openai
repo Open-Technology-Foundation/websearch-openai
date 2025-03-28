@@ -137,7 +137,7 @@ websearch() {
     *)            if [[ -z $QUERY ]]; then
                     QUERY=${1:0:255}
                   elif [[ -z $QUERY_CONTEXT ]]; then
-                    QUERY_CONTEXT=${1:1024}
+                    QUERY_CONTEXT=${1:0:1024}
                   else
                     die 2 "Invalid argument '$1'"
                   fi
